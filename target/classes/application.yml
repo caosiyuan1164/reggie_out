@@ -1,0 +1,44 @@
+#端口
+server:
+  port: 80
+#项目名称
+spring:
+  application:
+    name: reggie_take_out
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://8.130.117.39:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  #配置发送的邮箱，端口，协议，发送方的用户名，密码
+  mail:
+    host: smtp.qq.com
+    port: 465
+    protocol: smtp
+    username: 1164256118@qq.com
+    # 此为开通qq邮箱POP3/SMTP服务之后的激活码
+    password: kebtllwwwqilhagd
+    default-encoding: utf-8
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          debug: true
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: assign_id
+      logic-delete-field: isDeleted
+      logic-not-delete-value: 0
+      logic-delete-value: 1
+reggie:
+  path: /usr/local/app/reggie_out/img/
+
+
+
