@@ -6,6 +6,7 @@ import java.util.Map;
 
 /**
  * 通用返回结果类，服务端响应的数据最终都会封装为此对象
+ *
  * @param <T>
  */
 public class R<T> {
@@ -17,7 +18,7 @@ public class R<T> {
 
     private Map map = new HashMap();//动态数据
 
-    public static <T> R<T> success(T object){
+    public static <T> R<T> success(T object) {
         R<T> r = new R<T>();
         r.code = 1;
         r.data = object;
@@ -26,15 +27,15 @@ public class R<T> {
     }
 
 
-    public static <T> R<T> error(String msg){
+    public static <T> R<T> error(String msg) {
         R<T> r = new R<T>();
         r.code = 0;
         r.msg = msg;
         return r;
     }
 
-    public R<T> add(String key,Object value){
-        this.map.put(key,value);
+    public R<T> add(String key, Object value) {
+        this.map.put(key, value);
         return this;
     }
 

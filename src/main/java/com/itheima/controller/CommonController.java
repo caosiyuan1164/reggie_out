@@ -21,13 +21,15 @@ import java.util.UUID;
 public class CommonController {
     @Value("${reggie.path}")
     private String basePath;
+
     /**
      * 文件上传
+     *
      * @param file
      * @return
      */
     @PostMapping("/upload")
-    public R<String> upload(MultipartFile file){
+    public R<String> upload(MultipartFile file) {
         //file是一个临时文件，需要转存到指定位置，否则本次请求完成后临时文件会被删除
         System.out.println(file.toString());
         //原始文件名
@@ -47,7 +49,7 @@ public class CommonController {
                 dir.mkdirs();
             }
             file.transferTo(new File(dir.getAbsolutePath() + "\\" + uuid + postfix));
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -57,10 +59,11 @@ public class CommonController {
 
     /**
      * 文件下载功能，将上传的图片显示在网页上
+     *
      * @param name
      */
     @GetMapping("/download")
-    public void download(String name, HttpServletResponse response){
+    public void download(String name, HttpServletResponse response) {
         //输入流，读取文件内容
         FileInputStream fis = null;
         try {
@@ -72,14 +75,14 @@ public class CommonController {
             response.setContentType("image/jpeg");
             int len = 0;
             byte[] b = new byte[1024];
-            while ((len = fis.read(b)) != -1){
-                outputStream.write(b,0,len);
+            while ((len = fis.read(b)) != -1) {
+                outputStream.write(b, 0, len);
             }
 
             fis.close();
             outputStream.close();
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

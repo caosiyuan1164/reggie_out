@@ -38,17 +38,17 @@ public class OrdersController {
     private IShoppingCartService shoppingCartService;
 
     @PostMapping("/submit")
-    public R<String> submit(@RequestBody Orders orders){
+    public R<String> submit(@RequestBody Orders orders) {
         //获得当前用户id
         Long userId = BaseContext.getCurrentId();
         System.out.println(orders);
         //将当前订单提交到订单表
-        service.submit(orders,userId);//保存后orders对象被封装完好
+        service.submit(orders, userId);//保存后orders对象被封装完好
 
         //同时保存到订单细节表
         //首先根据userId将shoppingcart中数据查出来
         LambdaQueryWrapper<ShoppingCart> shoppingCartLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        shoppingCartLambdaQueryWrapper.eq(ShoppingCart::getUserId,userId);
+        shoppingCartLambdaQueryWrapper.eq(ShoppingCart::getUserId, userId);
         List<ShoppingCart> shoppingCarts = shoppingCartService.list(shoppingCartLambdaQueryWrapper);
         //创建OrderDetails的List,用于之后保存
         List<OrderDetail> orderDetails = new ArrayList<>();
@@ -78,22 +78,22 @@ public class OrdersController {
     }
 
     @GetMapping("/userPage")
-    public R<Page<OrderDto>> userPage(Integer page, Integer pageSize){
+    public R<Page<OrderDto>> userPage(Integer page, Integer pageSize) {
         //当前用户
         Long userId = BaseContext.getCurrentId();
         //创建page对象
-        Page<Orders> pageInfo = new Page<>(page,pageSize);
+        Page<Orders> pageInfo = new Page<>(page, pageSize);
         //分页查询
         //设置条件查询
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Orders::getUserId,userId);
+        queryWrapper.eq(Orders::getUserId, userId);
         //查询
         service.page(pageInfo, queryWrapper);
 
         //要转换成OrderDto的page对象
         Page<OrderDto> orderDtoPage = new Page<>();
         //复制属性
-        BeanUtils.copyProperties(pageInfo,orderDtoPage,"records");
+        BeanUtils.copyProperties(pageInfo, orderDtoPage, "records");
         //获取pageInfo的records
         List<Orders> orders = pageInfo.getRecords();
         //创建OrderDto的List
@@ -104,12 +104,12 @@ public class OrdersController {
             Orders order = orders.get(i);
             //拷贝属性
             OrderDto orderDto = new OrderDto();
-            BeanUtils.copyProperties(order,orderDto);
+            BeanUtils.copyProperties(order, orderDto);
             //获取order的id，根据这个id去查detail
             Long orderId = order.getId();
             //查询detail
             LambdaQueryWrapper<OrderDetail> orderDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            orderDetailLambdaQueryWrapper.eq(OrderDetail::getOrderId,orderId);
+            orderDetailLambdaQueryWrapper.eq(OrderDetail::getOrderId, orderId);
             //查询
             List<OrderDetail> orderDetails = orderDetailService.list(orderDetailLambdaQueryWrapper);
             //设置到orderDto中去

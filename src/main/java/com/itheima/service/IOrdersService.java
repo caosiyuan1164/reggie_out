@@ -15,7 +15,8 @@ public interface IOrdersService extends IService<Orders> {
 
     /**
      * 提交订单方法
+     *
      * @param orders
      */
-    void submit(Orders orders,Long userId);
+    void submit(Orders orders, Long userId);
 }

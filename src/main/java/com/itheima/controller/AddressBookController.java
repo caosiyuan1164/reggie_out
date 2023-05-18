@@ -30,18 +30,19 @@ public class AddressBookController {
 
     /**
      * 查询当前用户的所有地址
+     *
      * @param request
      * @return
      */
     @GetMapping("/list")
-    public R<List<AddressBook>> list(HttpServletRequest request){
+    public R<List<AddressBook>> list(HttpServletRequest request) {
         //根据request获得session
         HttpSession session = request.getSession();
         //从session中获取当前登录的user的id
         Long userId = (Long) session.getAttribute("user");
         //查询地址表
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AddressBook::getUserId,userId);
+        queryWrapper.eq(AddressBook::getUserId, userId);
         queryWrapper.orderByDesc(AddressBook::getUpdateTime);
         List<AddressBook> addressBooks = service.list(queryWrapper);
 
@@ -50,12 +51,13 @@ public class AddressBookController {
 
     /**
      * 保存地址
+     *
      * @param request
      * @param addressBook
      * @return
      */
     @PostMapping
-    public R<String> save(HttpServletRequest request,@RequestBody AddressBook addressBook){
+    public R<String> save(HttpServletRequest request, @RequestBody AddressBook addressBook) {
         //设置userId
         HttpSession session = request.getSession();
         Long userId = (Long) session.getAttribute("user");
@@ -67,14 +69,14 @@ public class AddressBookController {
     }
 
     @PutMapping("/default")
-    public R<String> setDefault(HttpServletRequest request, @RequestBody User user){
+    public R<String> setDefault(HttpServletRequest request, @RequestBody User user) {
         //首先查询当前用户下的默认地址，如果有，那么将之改为非默认
         HttpSession session = request.getSession();
         Long userId = (Long) session.getAttribute("user");
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AddressBook::getUserId,userId).eq(AddressBook::getIsDefault,1);
+        queryWrapper.eq(AddressBook::getUserId, userId).eq(AddressBook::getIsDefault, 1);
         AddressBook preDefault = service.getOne(queryWrapper);
-        if (preDefault != null){
+        if (preDefault != null) {
             //设置为非默认
             preDefault.setIsDefault(0);
             //更新
@@ -94,11 +96,12 @@ public class AddressBookController {
 
     /**
      * 回显地址信息
+     *
      * @param id
      * @return
      */
     @GetMapping("/{id}")
-    public R<AddressBook> getAddress(@PathVariable Long id){
+    public R<AddressBook> getAddress(@PathVariable Long id) {
         System.out.println(id);
 
         //根据id查询表
@@ -109,13 +112,14 @@ public class AddressBookController {
 
     /**
      * 删除地址
+     *
      * @param ids
      * @return
      */
     @DeleteMapping
-    public R<String> deleteAddress(@RequestParam List<Long> ids){
+    public R<String> deleteAddress(@RequestParam List<Long> ids) {
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(AddressBook::getId,ids);
+        queryWrapper.in(AddressBook::getId, ids);
 
         service.remove(queryWrapper);
 
@@ -124,24 +128,25 @@ public class AddressBookController {
 
     /**
      * 修改地址
+     *
      * @param addressBook
      * @return
      */
     @PutMapping
-    public R<String> updateAddress(@RequestBody AddressBook addressBook){
+    public R<String> updateAddress(@RequestBody AddressBook addressBook) {
         service.updateById(addressBook);
 
         return R.success("更新成功！");
     }
 
     @GetMapping("/default")
-    public R<AddressBook> getDefaultAddress(){
+    public R<AddressBook> getDefaultAddress() {
         //获取当前用户
         Long userId = BaseContext.getCurrentId();
         //根据当前用户id，以及default值查询默认地址
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper();
-        queryWrapper.eq(AddressBook::getUserId,userId);
-        queryWrapper.eq(AddressBook::getIsDefault,1);
+        queryWrapper.eq(AddressBook::getUserId, userId);
+        queryWrapper.eq(AddressBook::getIsDefault, 1);
         //查询
         AddressBook defaultAddress = service.getOne(queryWrapper);
 

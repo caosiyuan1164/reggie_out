@@ -15,7 +15,7 @@ public class RegisterEmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public void sendEmail(String toEmail,String code){
+    public void sendEmail(String toEmail, String code) {
         // 验证真的使用我们自己线程
         System.out.println(Thread.currentThread().getName());
         SimpleMailMessage message = new SimpleMailMessage();

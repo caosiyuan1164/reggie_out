@@ -35,7 +35,7 @@ public class CategoryController {
     private IDishService dishService;
 
     @PostMapping
-    public R<String> addNew(@RequestBody Category category){
+    public R<String> addNew(@RequestBody Category category) {
         //保存
         service.save(category);
         return R.success("添加成功！");
@@ -43,15 +43,16 @@ public class CategoryController {
 
     /**
      * 分页查询
+     *
      * @param page
      * @param pageSize
      * @return
      */
     @GetMapping("/page")
-    public R<Page<Category>> getPage(Integer page,Integer pageSize){
+    public R<Page<Category>> getPage(Integer page, Integer pageSize) {
         System.out.println("page = " + page);
         System.out.println("pageSize = " + pageSize);
-        Page<Category> pageInfo = new Page<Category>(page,pageSize);
+        Page<Category> pageInfo = new Page<Category>(page, pageSize);
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<Category>();
         //按照更新时间降序查询
         queryWrapper.orderByDesc(Category::getUpdateTime);
@@ -61,23 +62,23 @@ public class CategoryController {
     }
 
     @DeleteMapping
-    public R<String> delete(Long ids){
+    public R<String> delete(Long ids) {
         service.remove(ids);
 
         return R.success("删除成功！");
     }
 
     @PutMapping
-    public R<String> update(@RequestBody Category category){
+    public R<String> update(@RequestBody Category category) {
         service.updateById(category);
 
         return R.success("修改成功！");
     }
 
     @GetMapping("/list")
-    public R<List<Category>> list(Category category){
+    public R<List<Category>> list(Category category) {
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<Category>();
-        queryWrapper.eq(category.getType() != null,Category::getType,category.getType());
+        queryWrapper.eq(category.getType() != null, Category::getType, category.getType());
         queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
         List<Category> res = service.list(queryWrapper);
         return R.success(res);

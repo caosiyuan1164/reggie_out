@@ -38,9 +38,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersDao, Orders> implements
     private IAddressBookService addressBookService;
     @Autowired
     private IShoppingCartService shoppingCartService;
+
     @Override
     @Transactional
-    public void submit(Orders orders,Long userId) {
+    public void submit(Orders orders, Long userId) {
         //根据用户id查询用户姓名
         User user = userService.getById(userId);
         //设置order的username和userId和phone
@@ -48,7 +49,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersDao, Orders> implements
         orders.setUserName(user.getName());
         //根据已有的addressBookId查询地址表
         AddressBook addressBook = addressBookService.getById(orders.getAddressBookId());
-        if (addressBook == null){
+        if (addressBook == null) {
             throw new CustomException("地址信息有误，不能下单");
         }
         //设置地址和收货人还有phone
@@ -58,11 +59,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersDao, Orders> implements
         //查询shoppingCart表，设置份数和金额
         LambdaQueryWrapper<ShoppingCart> shoppingCartLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //设置查询条件-----userId
-        shoppingCartLambdaQueryWrapper.eq(userId != null,ShoppingCart::getUserId,userId);
+        shoppingCartLambdaQueryWrapper.eq(userId != null, ShoppingCart::getUserId, userId);
         //查询份数和金额
         List<ShoppingCart> shoppingCarts = shoppingCartService.list(shoppingCartLambdaQueryWrapper);
         //判断，如果购物车为空，那么不应该下单
-        if (shoppingCarts == null || shoppingCarts.size() == 0){
+        if (shoppingCarts == null || shoppingCarts.size() == 0) {
             throw new CustomException("购物车为空，下单失败");
         }
         //初始化份数和金额

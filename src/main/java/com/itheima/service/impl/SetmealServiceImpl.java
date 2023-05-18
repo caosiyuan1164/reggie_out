@@ -60,20 +60,20 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
     @Transactional
     public Page<SetMealDto> pageWithCategoryName(Integer page, Integer pageSize, String name) {
         //首先创建page对象
-        Page<Setmeal> pageInfo = new Page<Setmeal>(page,pageSize);
+        Page<Setmeal> pageInfo = new Page<Setmeal>(page, pageSize);
         //设置排序顺序
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<Setmeal>();
         //根据名称模糊查询
-        queryWrapper.like(name != null,Setmeal::getName,name);
+        queryWrapper.like(name != null, Setmeal::getName, name);
         queryWrapper.orderByDesc(Setmeal::getUpdateTime);
 
         //调用service查询
-        this.page(pageInfo,queryWrapper);
+        this.page(pageInfo, queryWrapper);
 
         //创建SetMealDto的page对象
         Page<SetMealDto> setMealDtoPage = new Page<>();
         //将pageInfo中的除了records的属性复制过来
-        BeanUtils.copyProperties(pageInfo,setMealDtoPage,"records");
+        BeanUtils.copyProperties(pageInfo, setMealDtoPage, "records");
 
         //创建SetMealDto的list
         List<SetMealDto> setMealDtoRecords = new ArrayList<>();
@@ -84,12 +84,12 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
             Setmeal setmeal = setmealRecords.get(i);
             //创建一个新的SetMealDto对象，将setmeal中属性复制过去
             SetMealDto setMealDto = new SetMealDto();
-            BeanUtils.copyProperties(setmeal,setMealDto);
+            BeanUtils.copyProperties(setmeal, setMealDto);
             //获取categoryId
             Long categoryId = setmeal.getCategoryId();
             //查询categoryName
             Category category = categoryService.getById(categoryId);
-            if (category != null){
+            if (category != null) {
                 //取出name
                 String categoryName = category.getName();
                 //赋值给setMealDto
@@ -110,12 +110,12 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
         //可以使用这样一个sql语句
         //select count(*) from setmeal where id in ids and status = 1 来判断是否有在启售状态的
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(Setmeal::getId,ids);
-        queryWrapper.eq(Setmeal::getStatus,1);
+        queryWrapper.in(Setmeal::getId, ids);
+        queryWrapper.eq(Setmeal::getStatus, 1);
 
         //查询
         int count = this.count(queryWrapper);
-        if (count > 0){
+        if (count > 0) {
             //存在启售状态的套餐
             //抛出异常
             throw new CustomException("所选套餐中有在售套餐，删除失败！");
@@ -126,7 +126,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealDao, Setmeal> impleme
 
         //同时去删除对应关系
         LambdaQueryWrapper<SetmealDish> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.in(SetmealDish::getSetmealId,ids);
+        queryWrapper1.in(SetmealDish::getSetmealId, ids);
         setmealDishService.remove(queryWrapper1);
 
 

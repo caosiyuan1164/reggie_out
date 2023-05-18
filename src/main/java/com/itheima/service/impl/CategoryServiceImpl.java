@@ -37,16 +37,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, Category> impl
         LambdaQueryWrapper<Setmeal> queryWrapperSetMeal = new LambdaQueryWrapper<Setmeal>();
         LambdaQueryWrapper<Dish> queryWrapperDish = new LambdaQueryWrapper<Dish>();
 
-        queryWrapperSetMeal.eq(Setmeal::getCategoryId,ids);
-        queryWrapperDish.eq(Dish::getCategoryId,ids);
+        queryWrapperSetMeal.eq(Setmeal::getCategoryId, ids);
+        queryWrapperDish.eq(Dish::getCategoryId, ids);
 
         List<Setmeal> setmeals = setmealService.list(queryWrapperSetMeal);
         List<Dish> dishes = dishService.list(queryWrapperDish);
 
         //判断
-        if ((setmeals.size() == 0 || setmeals == null) && (dishes.size() == 0 || dishes == null)){
+        if ((setmeals.size() == 0 || setmeals == null) && (dishes.size() == 0 || dishes == null)) {
             super.removeById(ids);
-        }else {
+        } else {
             throw new CustomException("删除失败！当前分类仍有套餐或者菜品");
         }
     }

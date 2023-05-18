@@ -57,20 +57,20 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements IDish
     @Override
     public Page<DishDto> pageWithCategoryName(Integer page, Integer pageSize, String name) {
         //创建page对象
-        Page<Dish> pageInfo = new Page<Dish>(page,pageSize);
+        Page<Dish> pageInfo = new Page<Dish>(page, pageSize);
         //创建queryWrapper
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<Dish>();
         //条件查询，模糊查询
-        queryWrapper.like(name != null,Dish::getName,name);
+        queryWrapper.like(name != null, Dish::getName, name);
         //排序
         queryWrapper.orderByDesc(Dish::getCreateTime);
 
         //调用service查询
-        this.page(pageInfo,queryWrapper);
+        this.page(pageInfo, queryWrapper);
 
         //对pageInfo进行处理，首先将pageInfo中的除了records外的其它属性复制出来
         Page<DishDto> dishDtoPage = new Page<DishDto>();
-        BeanUtils.copyProperties(pageInfo,dishDtoPage,"records");
+        BeanUtils.copyProperties(pageInfo, dishDtoPage, "records");
 
         //获得pageInfo中的records
         List<Dish> dishes = pageInfo.getRecords();
@@ -81,10 +81,10 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements IDish
             Long categoryId = dish.getCategoryId();
             Category category = categoryService.getById(categoryId);
             DishDto dishDto = new DishDto();
-            if (category != null){
+            if (category != null) {
                 String categoryName = category.getName();
                 //新建一个DishDto对象，将dish中的属性复制过去
-                BeanUtils.copyProperties(dish,dishDto);
+                BeanUtils.copyProperties(dish, dishDto);
                 dishDto.setCategoryName(categoryName);
             }
 
@@ -107,10 +107,10 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements IDish
         //新创建一个DishDto
         DishDto dishDto = new DishDto();
         //将查询到的dish的属性复制给dto
-        BeanUtils.copyProperties(dish,dishDto);
+        BeanUtils.copyProperties(dish, dishDto);
         //获取dish的口味
         LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<DishFlavor>();
-        queryWrapper.eq(DishFlavor::getDishId,id);
+        queryWrapper.eq(DishFlavor::getDishId, id);
         List<DishFlavor> list = flavorService.list(queryWrapper);
         //设置到dishDto中去
         dishDto.setFlavors(list);
@@ -125,7 +125,7 @@ public class DishServiceImpl extends ServiceImpl<DishDao, Dish> implements IDish
         this.updateById(dishDto);
         //2.清理之前的口味
         LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<DishFlavor>();
-        queryWrapper.eq(DishFlavor::getDishId,dishDto.getId());
+        queryWrapper.eq(DishFlavor::getDishId, dishDto.getId());
         flavorService.remove(queryWrapper);
 
         //3.将修改后的口味添加到dishFlavor表中
