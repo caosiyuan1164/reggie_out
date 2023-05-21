@@ -72,7 +72,7 @@ public class DishFlavor implements Serializable {
     /**
      * 是否删除
      */
-    private Integer isDeleted;
+    //private Integer isDeleted;
 
 
     @Override
@@ -86,7 +86,6 @@ public class DishFlavor implements Serializable {
                 ", updateTime=" + updateTime +
                 ", createUser=" + createUser +
                 ", updateUser=" + updateUser +
-                ", isDeleted=" + isDeleted +
                 '}';
     }
 
@@ -156,13 +155,5 @@ public class DishFlavor implements Serializable {
 
     public void setUpdateUser(Long updateUser) {
         this.updateUser = updateUser;
-    }
-
-    public Integer getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(Integer isDeleted) {
-        this.isDeleted = isDeleted;
     }
 }

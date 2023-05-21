@@ -11,10 +11,13 @@ import com.itheima.service.IDishFlavorService;
 import com.itheima.service.IDishService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -33,6 +36,9 @@ public class DishController {
     @Autowired
     private IDishFlavorService flavorService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 添加菜品
      *
@@ -43,6 +49,9 @@ public class DishController {
     public R<String> save(@RequestBody DishDto dto) {
         System.out.println("dto = " + dto.toString());
         service.saveWithFlavors(dto);
+
+        String key = "dish_" + dto.getCategoryId() + "_1";
+        redisTemplate.delete(key);
         return R.success("添加成功！");
     }
 
@@ -88,11 +97,31 @@ public class DishController {
     public R<String> update(@RequestBody DishDto dishDto) {
         service.updateWithFlavors(dishDto);
 
+        //清理所有菜品的缓存数据
+        /*Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);*/
+
+        String key = "dish_" + dishDto.getCategoryId() + "_1";
+        redisTemplate.delete(key);
+
         return R.success("修改成功");
     }
 
     @GetMapping("/list")
     public R<List<DishDto>> list(Dish dish) {
+        List<DishDto> dishDtos = null;
+        //动态拼接key
+        String key = "dish" + "_" + dish.getCategoryId() + "_" + dish.getStatus();
+
+        //先从redis中获取缓存数据
+        dishDtos = (List<DishDto>)redisTemplate.opsForValue().get(key);
+
+        if (dishDtos != null){
+            //如果存在，直接返回，无需查询数据库
+            return R.success(dishDtos);
+        }
+
+
         //根据categoryId查询该类别的菜品
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper();
 
@@ -109,7 +138,7 @@ public class DishController {
         //调用service进行查询
         List<Dish> dishes = service.list(queryWrapper);
         //创建DishDto的List
-        List<DishDto> dishDtos = new ArrayList<>();
+        dishDtos = new ArrayList<>();
         for (int i = 0; i < dishes.size(); i++) {
             //创建DishDto的对象
             DishDto dishDto = new DishDto();
@@ -126,6 +155,9 @@ public class DishController {
             //添加到list集合
             dishDtos.add(dishDto);
         }
+
+        //如果不存在，需要查询数据库，将查询到的菜品缓存到redis
+        redisTemplate.opsForValue().set(key,dishDtos,60, TimeUnit.MINUTES);
 
         //返回
         return R.success(dishDtos);

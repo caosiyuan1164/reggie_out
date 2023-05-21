@@ -9,6 +9,7 @@ import com.itheima.domain.UserCode;
 import com.itheima.service.IUserCodeService;
 import com.itheima.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -37,6 +39,9 @@ public class UserController {
     @Autowired
     private IUserService service;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @GetMapping("/mail")
     public void sendMail() {
         System.out.println("发送邮件了");
@@ -47,7 +52,16 @@ public class UserController {
     public R<String> login(HttpServletRequest request, @RequestBody UserCode userCode) {
         //首先打印一下userCode
         System.out.println(userCode);
-        //根据service查询一下是否有这个号码和code的对应关系
+
+        //首先查询redis
+        String res = (String) redisTemplate.opsForValue().get(userCode.getPhone());
+        System.out.println("验证码为：" + res);
+
+        if (res.isEmpty() || res == null){
+            return R.error("验证码错误！");
+        }
+
+        /*//根据service查询一下是否有这个号码和code的对应关系
         LambdaQueryWrapper<UserCode> queryWrapper = new LambdaQueryWrapper();
         //条件查询
         queryWrapper.eq(UserCode::getPhone, userCode.getPhone()).eq(UserCode::getCode, userCode.getCode());
@@ -64,22 +78,24 @@ public class UserController {
         } else {//未查到对应关系
             return R.error("验证码错误");
         }
-        //通过上面的所有，就证明通过验证，可以登录了
+        //通过上面的所有，就证明通过验证，可以登录了*/
 
         //保存
         //首先要查询号码在表中是否有对应记录，如果有，不需保存，并将对应id存到session中，如果没有，则存入
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userLambdaQueryWrapper.eq(User::getPhone, res.getPhone());
+        userLambdaQueryWrapper.eq(User::getPhone, userCode.getPhone());
         User user = service.getOne(userLambdaQueryWrapper);
         if (user == null) {
             //查到的用户为空
             //将对应的电话号码存成用户存到用户表中去
             user = new User();
-            user.setPhone(res.getPhone());
+            user.setPhone(userCode.getPhone());
         }
 
         //设置session
         request.getSession().setAttribute("user", user.getId());
+        //登录成功，则删除redis中的key-value
+        redisTemplate.delete(userCode.getPhone());
         return R.success("登录成功！");
     }
 
@@ -91,9 +107,9 @@ public class UserController {
     @PostMapping("/getCode/{phone}")
     public R<String> getCode(@PathVariable String phone) {
         //0.首先检验表中是否已经存在该号码，如果存在该号码，则删除该记录
-        LambdaQueryWrapper<UserCode> queryWrapper = new LambdaQueryWrapper();
+        /*LambdaQueryWrapper<UserCode> queryWrapper = new LambdaQueryWrapper();
         queryWrapper.eq(UserCode::getPhone, phone);
-        userCodeService.remove(queryWrapper);
+        userCodeService.remove(queryWrapper);*/
         //1.首先随机生成验证码。
         Random random = new Random();
         int sum = 0;
@@ -113,12 +129,17 @@ public class UserController {
         System.out.println(code);
         //2.发送验证码到指定邮箱
         mailService.sendEmail(phone, code);//得先能发出去，再存，如果不能发出去，那么存到数据库中的是无效数据
+
+        System.out.println("phone:"+phone);
+        //3.存入redis,并设置有效时间为5分钟
+        redisTemplate.opsForValue().set(phone,code,5,TimeUnit.MINUTES);
+
         //3.将之存到对应表中
-        UserCode userCode = new UserCode();
+        /*UserCode userCode = new UserCode();
         userCode.setPhone(phone);
         userCode.setCode(code);
         userCode.setCreateTime(LocalDateTime.now());
-        userCodeService.save(userCode);
+        userCodeService.save(userCode);*/
         //4.返回
         return R.success("发送成功！");
     }
