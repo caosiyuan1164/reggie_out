@@ -9,6 +9,8 @@ import com.itheima.domain.Setmeal;
 import com.itheima.dto.SetMealDto;
 import com.itheima.service.ISetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)//清理setmealCache下的所有缓存
     public R<String> save(@RequestBody SetMealDto setMealDto) {
         service.saveWithDishes(setMealDto);
 
@@ -64,6 +67,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping("/status/{statusVal}")
+    @CacheEvict(value = "setmealCache",allEntries = true)//清理setmealCache下的所有缓存
     public R<String> changeStatus(@PathVariable Integer statusVal, Long[] ids) {
         //遍历ids,将之存入对象中去，同时存入status，并存到一个list集合中
         List<Setmeal> list = new ArrayList<>();
@@ -86,12 +90,14 @@ public class SetmealController {
      * @return
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)//清理setmealCache下的所有缓存
     public R<String> delete(@RequestParam List<Long> ids) {
         service.removeWithFlavors(ids);
         return R.success("删除成功！");
     }
 
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId + '_' + #setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal) {
         //创建查询器
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();

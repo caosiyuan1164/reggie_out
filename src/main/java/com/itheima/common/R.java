@@ -1,5 +1,6 @@
 package com.itheima.common;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +10,7 @@ import java.util.Map;
  *
  * @param <T>
  */
-public class R<T> {
+public class R<T> implements Serializable {
     private Integer code;//编码：1 成功 0 失败
 
     private String msg;//错误信息
